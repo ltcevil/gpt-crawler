@@ -1,10 +1,11 @@
-import { AzureOpenAIEmbeddings } from "@langchain/azure-openai";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
+import { AzureOpenAIEmbeddings } from "@langchain/openai";
 import cors from "cors";
 import { configDotenv } from "dotenv";
 import express, { Express } from "express";
 import { PathLike } from "fs";
 import { readFile } from "fs/promises";
+import { SynchronousInMemoryDocstore } from 'langchain/docstore';
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { join } from 'path';
 import swaggerUi from "swagger-ui-express";
@@ -48,11 +49,9 @@ app.post("/generate-embeddings", async (req, res) => {
 
     // Initialize the Azure OpenAI embeddings model
     const embeddings = new AzureOpenAIEmbeddings({
-      azureOpenAIEndpoint: process.env.AZURE_API_ENDPOINT,
-      azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
-      azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
-      azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
-      azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
+      endpoint: process.env.AZURE_API_ENDPOINT,
+      apiKey: process.env.AZURE_OPENAI_API_KEY,
+      deploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
     });
 
     // Generate embeddings and FAISS index based on the logic in core.ts
@@ -71,8 +70,7 @@ app.post("/generate-embeddings", async (req, res) => {
     const indexFile = join(__dirname, '..', 'faiss', `${currentDatetime}.faiss`);
 
     const db = await FaissStore.fromDocuments(allSplits, embeddings, {
-      normalizeL2: true,
-      distanceStrategy: "cosine",
+      docstore: new SynchronousInMemoryDocstore(),
     });
     await db.save(indexFile);
 
@@ -81,7 +79,6 @@ app.post("/generate-embeddings", async (req, res) => {
     res.status(500).json({ message: "Error generating embeddings", error });
   }
 });
-
 app.listen(port, hostname, () => {
   console.log(`API server listening at http://${hostname}:${port}`);
 });

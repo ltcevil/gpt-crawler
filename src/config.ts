@@ -1,6 +1,6 @@
-import { z } from "zod";
-import type { Page } from "playwright";
 import { configDotenv } from "dotenv";
+import type { Page } from "playwright";
+import { z } from "zod";
 
 configDotenv();
 
@@ -63,7 +63,7 @@ export const configSchema = z.object({
     .args(
       z.object({
         page: Page,
-        pushData: z.function().args(z.any()).returns(z.promise(z.void())),
+        pushData: z.function().args(z.any(), z.string().optional()).returns(z.promise(z.void())),
       }),
     )
     .returns(z.promise(z.void()))
