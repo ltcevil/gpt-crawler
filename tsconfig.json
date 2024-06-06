@@ -1,8 +1,8 @@
 {
   "extends": "@apify/tsconfig",
   "compilerOptions": {
-    //"module": "esnext",
-    "module": "ES2022",
+    "module": "esnext",
+//    "module": "ES2022",
     "target": "ES2022",
     "outDir": "dist",
     "moduleResolution": "node",
