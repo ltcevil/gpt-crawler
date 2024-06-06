@@ -1,16 +1,15 @@
+import { AzureOpenAIEmbeddings } from "@langchain/azure-openai";
+import { DistanceStrategy, FaissStore } from "@langchain/community/vectorstores/faiss";
 import cors from "cors";
 import { configDotenv } from "dotenv";
 import express, { Express } from "express";
-import { readFile } from "fs/promises";
-import swaggerUi from "swagger-ui-express";
-import { Config, configSchema } from "./config.js";
-// @ts-ignore
-import { AzureOpenAIEmbeddings } from "@langchain/azure-openai";
 import { PathLike } from "fs";
+import { readFile } from "fs/promises";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { DistanceStrategy, FAISS } from "langchain/vectorstores/faiss";
 import { join } from 'path';
+import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger-output.json" assert { type: "json" };
+import { Config, configSchema } from "./config.js";
 import GPTCrawlerCore from "./core.js";
 
 configDotenv();
@@ -47,7 +46,7 @@ app.post("/generate-embeddings", async (req, res) => {
     const outputFileContent = await readFile(outputFileName, "utf-8");
     const data = JSON.parse(outputFileContent);
 
-    // Inicializáld az Azure OpenAI embeddings modellt
+    // Initialize the Azure OpenAI embeddings model
     const embeddings = new AzureOpenAIEmbeddings({
       azureOpenAIEndpoint: process.env.AZURE_API_ENDPOINT,
       azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
@@ -56,7 +55,7 @@ app.post("/generate-embeddings", async (req, res) => {
       azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
     });
 
-    // A beágyazások és a FAISS index generálása a core.ts-ben lévő logika alapján
+    // Generate embeddings and FAISS index based on the logic in core.ts
     const docs = data.map((dict: any) => ({
       pageContent: dict.html,
       metadata: { title: dict.title, url: dict.url },
@@ -71,7 +70,7 @@ app.post("/generate-embeddings", async (req, res) => {
     const currentDatetime = new Date().toISOString().replace(/[:.]/g, "-");
     const indexFile = join(__dirname, '..', 'faiss', `${currentDatetime}.faiss`);
 
-    const db = await FAISS.fromDocuments(allSplits, embeddings, {
+    const db = await FaissStore.fromDocuments(allSplits, embeddings, {
       normalizeL2: true,
       distanceStrategy: DistanceStrategy.COSINE,
     });
@@ -82,7 +81,6 @@ app.post("/generate-embeddings", async (req, res) => {
     res.status(500).json({ message: "Error generating embeddings", error });
   }
 });
-
 
 app.listen(port, hostname, () => {
   console.log(`API server listening at http://${hostname}:${port}`);
