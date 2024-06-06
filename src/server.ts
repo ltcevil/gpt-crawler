@@ -1,5 +1,5 @@
 import { AzureOpenAIEmbeddings } from "@langchain/azure-openai";
-import { DistanceStrategy, FaissStore } from "@langchain/community/vectorstores/faiss";
+import { FaissStore } from "@langchain/community/vectorstores/faiss";
 import cors from "cors";
 import { configDotenv } from "dotenv";
 import express, { Express } from "express";
@@ -72,9 +72,9 @@ app.post("/generate-embeddings", async (req, res) => {
 
     const db = await FaissStore.fromDocuments(allSplits, embeddings, {
       normalizeL2: true,
-      distanceStrategy: DistanceStrategy.COSINE,
+      distanceStrategy: "cosine",
     });
-    await db.saveLocal(indexFile);
+    await db.save(indexFile);
 
     res.status(200).json({ message: "Embeddings generated successfully" });
   } catch (error) {
