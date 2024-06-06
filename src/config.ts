@@ -63,7 +63,7 @@ export const configSchema = z.object({
     .args(
       z.object({
         page: Page,
-        pushData: z.function().args(z.any()).returns(z.promise(z.void())),
+        pushData: (args_0: any, ...args_1: unknown[]) => Promise<void>
       }),
     )
     .returns(z.promise(z.void()))
