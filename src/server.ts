@@ -7,8 +7,8 @@ import { Config, configSchema } from "./config.js";
 // @ts-ignore
 import { AzureOpenAIEmbeddings } from "@langchain/azure-openai";
 import { PathLike } from "fs";
-import { DistanceStrategy, FAISS } from 'langchain-community/vectorstores/faiss';
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { DistanceStrategy, FAISS } from "langchain/vectorstores/faiss";
 import { join } from 'path';
 import swaggerDocument from "../swagger-output.json" assert { type: "json" };
 import GPTCrawlerCore from "./core.js";
