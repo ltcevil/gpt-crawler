@@ -5,7 +5,7 @@ import { configDotenv } from "dotenv";
 import express, { Express } from "express";
 import { PathLike } from "fs";
 import { readFile } from "fs/promises";
-import { SynchronousInMemoryDocstore } from 'langchain/docstore';
+import { SynchronousInMemoryDocstore } from 'langchain/stores/doc/in_memory';
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { join } from 'path';
 import swaggerUi from "swagger-ui-express";
