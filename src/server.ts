@@ -41,46 +41,6 @@ app.post("/crawl", async (req, res) => {
   }
 });
 
-app.post("/generate-embeddings", async (req, res) => {
-  try {
-    const outputFileName: PathLike = req.body.outputFileName;
-    const outputFileContent = await readFile(outputFileName, "utf-8");
-    const data = JSON.parse(outputFileContent);
-
-    // Initialize the Azure OpenAI embeddings model
-    const embeddings = new AzureOpenAIEmbeddings({
-      azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
-      azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
-      azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
-      azureOpenAIBasePath: process.env.AZURE_API_ENDPOINT,
-      azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
-    });
-
-    // Generate embeddings and FAISS index based on the logic in core.ts
-    const docs = data.map((dict: any) => ({
-      pageContent: dict.html,
-      metadata: { title: dict.title, url: dict.url },
-    }));
-
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1000,
-      chunkOverlap: 100,
-    });
-    const allSplits = await textSplitter.splitDocuments(docs);
-
-    const currentDatetime = new Date().toISOString().replace(/[:.]/g, "-");
-    const indexFile = join(__dirname, '..', 'faiss', `${currentDatetime}.faiss`);
-
-    const db = await FaissStore.fromDocuments(allSplits, embeddings, {
-      docstore: new SynchronousInMemoryDocstore(),
-    });
-    await db.save(indexFile);
-
-    res.status(200).json({ message: "Embeddings generated successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error generating embeddings", error });
-  }
-});
 app.listen(port, hostname, () => {
   console.log(`API server listening at http://${hostname}:${port}`);
 });
