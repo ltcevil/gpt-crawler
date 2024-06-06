@@ -49,9 +49,11 @@ app.post("/generate-embeddings", async (req, res) => {
 
     // Initialize the Azure OpenAI embeddings model
     const embeddings = new AzureOpenAIEmbeddings({
-      endpoint: process.env.AZURE_API_ENDPOINT,
-      apiKey: process.env.AZURE_OPENAI_API_KEY,
-      deploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
+      azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
+      azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
+      azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+      azureOpenAIBasePath: process.env.AZURE_API_ENDPOINT,
+      azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
     });
 
     // Generate embeddings and FAISS index based on the logic in core.ts
